@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>PricePulse — Smart Shopping Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F6F4EF;--surface:#FFFFFF;--surface2:#F9F8F5;--border:#E8E4DC;--border2:#D4CFBF;
+  --text:#1A1916;--text2:#6B6760;--text3:#A8A49C;--ink:#1A1916;
+  --accent:#FF5722;--accent2:#FF7043;--accentbg:#FFF3F0;--accentborder:#FFCCBC;
+  --green:#16A34A;--greenbg:#F0FDF4;--greenborder:#BBF7D0;
+  --red:#DC2626;--redbg:#FEF2F2;
+  --amber:#D97706;--amberbg:#FFFBEB;
+  --blue:#2563EB;--bluebg:#EFF6FF;
+  --teal:#0D9488;--tealbg:#F0FDFA;
+  --serif:'Syne',sans-serif;--sans:'Plus Jakarta Sans',sans-serif;--mono:'SF Mono','Fira Code',monospace;
+  --r:14px;--r2:10px;--r3:8px;
+  --sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --sh2:0 4px 16px rgba(0,0,0,.08),0 2px 6px rgba(0,0,0,.04);
+  --sh3:0 20px 60px rgba(0,0,0,.12),0 8px 20px rgba(0,0,0,.08);
+}
+html{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+body{min-height:100vh}
+button,input,select{font-family:var(--sans);outline:none;border:none}
+button{cursor:pointer}
+
+/* ── AUTH SCREENS ── */
+#auth-screen{display:flex;min-height:100vh}
+.auth-left{flex:1;background:var(--ink);display:flex;flex-direction:column;justify-content:space-between;padding:48px;position:relative;overflow:hidden}
+.auth-left::before{content:'';position:absolute;width:400px;height:400px;border-radius:50%;background:rgba(255,87,34,.12);top:-80px;right:-80px;pointer-events:none}
+.auth-left::after{content:'';position:absolute;width:280px;height:280px;border-radius:50%;background:rgba(255,87,34,.07);bottom:60px;left:-60px;pointer-events:none}
+.auth-logo{display:flex;align-items:center;gap:12px;position:relative;z-index:1}
+.auth-logo-mark{width:40px;height:40px;background:var(--accent);border-radius:12px;display:flex;align-items:center;justify-content:center}
+.auth-logo-mark svg{width:22px;height:22px;fill:white}
+.auth-logo-name{font-family:var(--serif);font-size:22px;font-weight:800;color:white;letter-spacing:-.3px}
+.auth-hero{position:relative;z-index:1}
+.auth-hero-title{font-family:var(--serif);font-size:36px;font-weight:800;color:white;line-height:1.15;letter-spacing:-.5px;margin-bottom:16px}
+.auth-hero-title span{color:var(--accent)}
+.auth-hero-sub{font-size:15px;color:rgba(255,255,255,.5);line-height:1.7;max-width:380px}
+.auth-pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px}
+.auth-pill{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:7px 14px;font-size:12px;font-weight:600;color:rgba(255,255,255,.7);display:flex;align-items:center;gap:6px}
+.auth-stats{display:flex;gap:24px;position:relative;z-index:1}
+.auth-stat-val{font-family:var(--serif);font-size:24px;font-weight:800;color:white;letter-spacing:-.5px}
+.auth-stat-label{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px}
+
+.auth-right{width:460px;flex-shrink:0;background:var(--surface);display:flex;flex-direction:column;justify-content:center;padding:56px 48px}
+.auth-tab-row{display:flex;background:var(--surface2);border-radius:var(--r2);padding:4px;margin-bottom:32px;border:1px solid var(--border)}
+.auth-tab{flex:1;padding:9px;border-radius:8px;font-size:13px;font-weight:600;color:var(--text3);cursor:pointer;transition:all .15s;text-align:center;border:none;background:none;font-family:var(--sans)}
+.auth-tab.active{background:var(--surface);color:var(--text);box-shadow:var(--sh)}
+.auth-form-title{font-family:var(--serif);font-size:24px;font-weight:800;color:var(--ink);margin-bottom:6px;letter-spacing:-.3px}
+.auth-form-sub{font-size:13px;color:var(--text2);margin-bottom:28px;line-height:1.5}
+.flabel{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;display:block;letter-spacing:.2px}
+.finput{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r3);padding:11px 14px;color:var(--ink);font-size:14px;font-family:var(--sans);transition:all .2s}
+.finput:focus{border-color:var(--accent);background:var(--surface);box-shadow:0 0 0 3px rgba(255,87,34,.1)}
+.fgroup{margin-bottom:16px}
+.auth-divider{display:flex;align-items:center;gap:12px;margin:20px 0}
+.auth-divider-line{flex:1;height:1px;background:var(--border)}
+.auth-divider span{font-size:12px;color:var(--text3);font-weight:500}
+.social-btn{width:100%;padding:11px;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r3);font-size:13px;font-weight:600;color:var(--text2);display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;transition:all .15s;margin-bottom:10px;font-family:var(--sans)}
+.social-btn:hover{border-color:var(--border2);background:var(--surface);color:var(--text)}
+.auth-footer{font-size:12px;color:var(--text3);text-align:center;margin-top:20px}
+.auth-footer a{color:var(--accent);font-weight:600;cursor:pointer;text-decoration:none}
+.auth-error{background:var(--redbg);border:1px solid #FCA5A5;border-radius:var(--r3);padding:10px 14px;font-size:12px;color:var(--red);margin-bottom:16px;display:none}
+.pwd-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--text3);cursor:pointer;font-size:12px;font-weight:600;font-family:var(--sans)}
+.input-wrap{position:relative}
+
+/* ── MAIN APP (hidden until login) ── */
+#app-screen{display:none}
+.layout{display:grid;grid-template-columns:248px 1fr;min-height:100vh}
+.sidebar{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow:hidden}
+.sidebar-top{padding:22px 20px 16px;border-bottom:1px solid var(--border)}
+.logo{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.logo-mark{width:34px;height:34px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center}
+.logo-mark svg{width:18px;height:18px;fill:white}
+.logo-name{font-family:var(--serif);font-size:18px;font-weight:800;letter-spacing:-.3px;color:var(--ink)}
+.logo-name span{color:var(--accent)}
+.wallet-chip{background:var(--ink);border-radius:var(--r2);padding:14px 16px;cursor:pointer;transition:background .2s}
+.wallet-chip:hover{background:#2d2b26}
+.wc-label{font-size:10px;font-weight:600;color:rgba(255,255,255,.45);letter-spacing:.6px;text-transform:uppercase;margin-bottom:3px}
+.wc-bal{font-family:var(--serif);font-size:22px;font-weight:800;color:white;letter-spacing:-.5px}
+.wc-sub{font-size:10px;color:rgba(255,255,255,.35);margin-top:1px}
+.wc-row{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.1)}
+.wc-add{font-size:11px;font-weight:600;background:rgba(255,255,255,.12);color:white;padding:4px 10px;border-radius:20px;border:none;cursor:pointer;font-family:var(--sans)}
+.wc-add:hover{background:rgba(255,255,255,.2)}
+.sidebar-nav{flex:1;padding:10px 12px;overflow-y:auto}
+.nav-sec{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.8px;text-transform:uppercase;padding:12px 8px 5px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--r3);color:var(--text2);font-size:13px;font-weight:500;transition:all .15s;cursor:pointer;border:none;background:none;width:100%;text-align:left;margin-bottom:1px}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:var(--accentbg);color:var(--accent)}
+.nav-item svg{width:15px;height:15px;flex-shrink:0;stroke-width:0}
+.nav-badge{margin-left:auto;background:var(--red);color:white;font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px}
+.sidebar-footer{padding:14px 16px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:13px;font-weight:700;color:white;flex-shrink:0}
+.user-name{font-size:13px;font-weight:600;color:var(--ink)}
+.user-email{font-size:11px;color:var(--text3)}
+.logout-btn{margin-left:auto;font-size:11px;color:var(--text3);background:none;border:none;cursor:pointer;font-family:var(--sans);padding:4px 6px;border-radius:4px}
+.logout-btn:hover{color:var(--red);background:var(--redbg)}
+
+/* ── Main content ── */
+.main{background:var(--bg);overflow-y:auto;min-height:100vh}
+.main-inner{padding:28px 32px;max-width:1100px}
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:16px}
+.ph-title{font-family:var(--serif);font-size:26px;font-weight:800;letter-spacing:-.5px;color:var(--ink)}
+.ph-sub{font-size:13px;color:var(--text2);margin-top:2px}
+
+/* ── Components ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;box-shadow:var(--sh)}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;box-shadow:var(--sh)}
+.metric-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.metric-value{font-family:var(--serif);font-size:26px;font-weight:800;color:var(--ink);letter-spacing:-.5px}
+.metric-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.badge{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px}
+.badge-green{background:var(--greenbg);color:var(--green)}
+.badge-red{background:var(--redbg);color:var(--red)}
+.badge-amber{background:var(--amberbg);color:var(--amber)}
+.badge-blue{background:var(--bluebg);color:var(--blue)}
+.badge-teal{background:var(--tealbg);color:var(--teal)}
+.badge-orange{background:var(--accentbg);color:var(--accent)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:var(--r3);font-size:13px;font-weight:600;transition:all .15s;cursor:pointer;border:none;font-family:var(--sans)}
+.btn-primary{background:var(--accent);color:white}
+.btn-primary:hover{background:var(--accent2);transform:translateY(-1px)}
+.btn-outline{background:transparent;border:1.5px solid var(--border2);color:var(--text2)}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent);background:var(--accentbg)}
+.btn-green{background:var(--greenbg);color:var(--green);border:1.5px solid var(--greenborder)}
+.btn-green:hover{background:#DCFCE7}
+.btn-sm{padding:6px 12px;font-size:12px}
+
+/* ── Search ── */
+.search-wrap{position:relative;margin-bottom:20px}
+.search-bar{display:flex;align-items:center;gap:10px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r2);padding:10px 16px;transition:all .2s;box-shadow:var(--sh)}
+.search-bar:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,87,34,.1)}
+.search-bar input{flex:1;background:none;border:none;color:var(--text);font-size:14px;font-family:var(--sans)}
+.search-bar input::placeholder{color:var(--text3)}
+.sdd{position:absolute;top:calc(100%+6px);left:0;right:0;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);z-index:100;max-height:380px;overflow-y:auto;display:none;box-shadow:var(--sh2)}
+.sdd.open{display:block}
+.sri{display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;transition:background .1s;border-bottom:1px solid var(--border)}
+.sri:last-child{border-bottom:none}
+.sri:hover{background:var(--surface2)}
+.sri-emoji{font-size:22px;width:38px;height:38px;background:var(--surface2);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid var(--border)}
+.sri-price{font-family:var(--serif);font-size:15px;font-weight:700;color:var(--green);margin-left:auto;white-space:nowrap}
+
+/* ── Product grid ── */
+.pg{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.pc{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:14px;cursor:pointer;transition:all .2s;position:relative;box-shadow:var(--sh)}
+.pc:hover{border-color:var(--accent);box-shadow:var(--sh2);transform:translateY(-2px)}
+.pc.sel{border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,87,34,.1),var(--sh)}
+.pc-dot{position:absolute;top:11px;right:11px;width:7px;height:7px;border-radius:50%}
+.pc-emoji{font-size:26px;margin-bottom:10px;display:block}
+.pc-name{font-size:12px;font-weight:600;color:var(--ink);margin-bottom:2px;line-height:1.3}
+.pc-cat{font-size:10px;color:var(--text3);margin-bottom:8px}
+.pc-price{font-family:var(--serif);font-size:16px;font-weight:800;color:var(--ink)}
+.pc-pred{font-size:10px;color:var(--green);font-weight:600;margin-top:2px}
+
+/* ── Detail ── */
+.plat-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.plat-row:last-child{border-bottom:none}
+.chart-wrap{height:170px;position:relative;margin:8px 0}
+.insight-box{background:var(--accentbg);border:1px solid var(--accentborder);border-radius:var(--r2);padding:13px 15px;margin-top:12px}
+.pred-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.pred-item{background:var(--surface2);border-radius:var(--r3);padding:10px;text-align:center;border:1px solid var(--border)}
+.pred-lbl{font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
+.pred-val{font-family:var(--serif);font-size:16px;font-weight:800}
+
+/* ── Wallet / targets ── */
+.wi{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--border)}
+.wi:last-child{border-bottom:none}
+.wi-emoji{width:42px;height:42px;background:var(--surface2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;border:1px solid var(--border)}
+.wbar{height:5px;background:var(--border);border-radius:3px;margin-top:6px;overflow:hidden}
+.wbar-fill{height:100%;border-radius:3px;background:var(--accent)}
+.alert-row{display:flex;align-items:flex-start;gap:12px;padding:13px 0;border-bottom:1px solid var(--border)}
+.alert-row:last-child{border-bottom:none}
+.alert-pip{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+
+/* ── Modals ── */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(26,25,22,.5);z-index:300;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:var(--surface);border-radius:18px;padding:28px;width:460px;max-width:94vw;box-shadow:var(--sh3);animation:popIn .2s ease}
+@keyframes popIn{from{opacity:0;transform:scale(.95) translateY(8px)}to{opacity:1;transform:scale(1)}}
+.modal-title{font-family:var(--serif);font-size:20px;font-weight:800;color:var(--ink);margin-bottom:4px;letter-spacing:-.2px}
+.modal-sub{font-size:13px;color:var(--text2);margin-bottom:22px;line-height:1.5}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fgroup{margin-bottom:14px}
+.topup-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0 14px}
+.topup-btn{padding:11px;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r3);font-size:13px;font-weight:700;color:var(--text2);cursor:pointer;transition:all .15s;text-align:center;font-family:var(--sans)}
+.topup-btn:hover,.topup-btn.sel{border-color:var(--accent);background:var(--accentbg);color:var(--accent)}
+
+/* ── UPI Payment modal ── */
+.upi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0 18px}
+.upi-app{display:flex;flex-direction:column;align-items:center;gap:7px;padding:14px 6px;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r2);cursor:pointer;transition:all .15s}
+.upi-app:hover,.upi-app.sel{border-color:var(--accent);background:var(--accentbg)}
+.upi-logo{width:44px;height:44px;border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.upi-name{font-size:11px;font-weight:600;color:var(--text2);text-align:center}
+.upi-app.sel .upi-name{color:var(--accent)}
+.steps{display:flex;align-items:center;gap:8px;margin-bottom:20px}
+.step{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3);font-weight:500}
+.step.active{color:var(--ink)}
+.step.done{color:var(--green)}
+.sdot{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;background:var(--surface2)}
+.step.active .sdot{background:var(--accent);border-color:var(--accent);color:white}
+.step.done .sdot{background:var(--green);border-color:var(--green);color:white}
+.sline{flex:1;height:1.5px;background:var(--border)}
+.pay-sum{background:var(--surface2);border-radius:var(--r2);padding:16px;margin:14px 0;border:1px solid var(--border)}
+.pay-row{display:flex;justify-content:space-between;padding:7px 0;font-size:13px;border-bottom:1px solid var(--border)}
+.pay-row:last-child{border-bottom:none;padding-top:12px;margin-top:4px}
+.success-wrap{text-align:center;padding:8px 0}
+.success-circle{width:68px;height:68px;background:var(--greenbg);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:30px;border:2px solid var(--greenborder)}
+.order-ref{font-family:var(--mono);font-size:11px;background:var(--surface2);padding:8px 14px;border-radius:6px;margin-top:12px;color:var(--text3);display:inline-block;border:1px solid var(--border)}
+.balance-ok{background:var(--greenbg);border:1px solid var(--greenborder);border-radius:var(--r3);padding:10px 14px;display:flex;align-items:center;gap:8px;margin:10px 0;font-size:12px;color:var(--green);font-weight:600}
+.balance-low{background:var(--redbg);border:1px solid #FCA5A5;border-radius:var(--r3);padding:10px 14px;display:flex;align-items:center;gap:8px;margin:10px 0;font-size:12px;color:var(--red)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.fade-up{animation:fadeUp .2s ease forwards}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:26px;height:26px;border:2.5px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto}
+
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     AUTH SCREEN
+════════════════════════════════════════════════════════════ -->
+<div id="auth-screen">
+  <div class="auth-left">
+    <div class="auth-logo">
+      <div class="auth-logo-mark"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+      <div class="auth-logo-name">PricePulse</div>
+    </div>
+    <div class="auth-hero">
+      <div class="auth-hero-title">Buy smarter.<br/>Save <span>every time.</span></div>
+      <div class="auth-hero-sub">AI-powered price prediction across Amazon, Flipkart, Blinkit, Zepto & 8 more platforms. Set a target price — we auto-buy when it drops.</div>
+      <div class="auth-pills">
+        <div class="auth-pill"><span style="color:var(--accent)">↓</span> Price predictions</div>
+        <div class="auth-pill"><span style="color:var(--accent)">⚡</span> Auto-buy wallet</div>
+        <div class="auth-pill"><span style="color:var(--accent)">🔔</span> Smart alerts</div>
+        <div class="auth-pill"><span style="color:var(--accent)">📊</span> Price history</div>
+      </div>
+    </div>
+    <div class="auth-stats">
+      <div><div class="auth-stat-val">₹1.2Cr+</div><div class="auth-stat-label">Saved by users</div></div>
+      <div><div class="auth-stat-val">40+</div><div class="auth-stat-label">Products tracked</div></div>
+      <div><div class="auth-stat-val">10</div><div class="auth-stat-label">Platforms</div></div>
+    </div>
+  </div>
+
+  <div class="auth-right">
+    <div class="auth-tab-row">
+      <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Sign in</button>
+      <button class="auth-tab" id="tab-signup" onclick="switchAuthTab('signup')">Create account</button>
+    </div>
+
+    <!-- Login form -->
+    <div id="login-form">
+      <div class="auth-form-title">Welcome back</div>
+      <div class="auth-form-sub">Sign in to your PricePulse account</div>
+      <div class="auth-error" id="login-error"></div>
+      <div class="fgroup">
+        <label class="flabel">Email address</label>
+        <input type="email" class="finput" id="login-email" placeholder="you@example.com" onkeydown="if(event.key==='Enter')doLogin()"/>
+      </div>
+      <div class="fgroup">
+        <label class="flabel">Password</label>
+        <div class="input-wrap">
+          <input type="password" class="finput" id="login-pwd" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()" style="padding-right:52px"/>
+          <span class="pwd-toggle" onclick="togglePwd('login-pwd',this)">Show</span>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:20px">
+        <a style="font-size:12px;color:var(--accent);font-weight:600;cursor:pointer">Forgot password?</a>
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;padding:13px;font-size:14px" onclick="doLogin()">Sign in to PricePulse</button>
+      <div class="auth-divider"><div class="auth-divider-line"></div><span>or continue with</span><div class="auth-divider-line"></div></div>
+      <button class="social-btn" onclick="doSocial('Google')">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.2l6.8-6.8C35.8 2.1 30.2 0 24 0 14.8 0 6.9 5.4 2.9 13.3l7.9 6.1C12.7 13.1 17.9 9.5 24 9.5z"/><path fill="#4285F4" d="M46.6 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.2-10.1 7.2-17z"/><path fill="#FBBC04" d="M10.8 28.6C10.3 27.1 10 25.6 10 24s.3-3.1.8-4.6l-7.9-6.1C1 16.3 0 20 0 24s1 7.7 2.9 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.5-5.8c-2 1.4-4.6 2.3-7.7 2.3-6.1 0-11.3-3.6-13.2-9.4l-7.9 6.1C6.9 42.6 14.8 48 24 48z"/></svg>
+        Continue with Google
+      </button>
+      <button class="social-btn" onclick="doSocial('Phone')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14z"/></svg>
+        Continue with Mobile
+      </button>
+    </div>
+
+    <!-- Signup form -->
+    <div id="signup-form" style="display:none">
+      <div class="auth-form-title">Create account</div>
+      <div class="auth-form-sub">Start saving money on every purchase</div>
+      <div class="auth-error" id="signup-error"></div>
+      <div class="frow">
+        <div class="fgroup"><label class="flabel">First name</label><input type="text" class="finput" id="su-fname" placeholder="Arjun"/></div>
+        <div class="fgroup"><label class="flabel">Last name</label><input type="text" class="finput" id="su-lname" placeholder="Sharma"/></div>
+      </div>
+      <div class="fgroup"><label class="flabel">Email address</label><input type="email" class="finput" id="su-email" placeholder="you@example.com"/></div>
+      <div class="fgroup"><label class="flabel">Phone number</label><input type="tel" class="finput" id="su-phone" placeholder="+91 98765 43210"/></div>
+      <div class="fgroup">
+        <label class="flabel">Password</label>
+        <div class="input-wrap">
+          <input type="password" class="finput" id="su-pwd" placeholder="Min 8 characters" style="padding-right:52px" onkeydown="if(event.key==='Enter')doSignup()"/>
+          <span class="pwd-toggle" onclick="togglePwd('su-pwd',this)">Show</span>
+        </div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;padding:13px;font-size:14px" onclick="doSignup()">Create my account</button>
+      <div style="font-size:11px;color:var(--text3);text-align:center;margin-top:14px;line-height:1.6">By creating an account you agree to our <a style="color:var(--accent);cursor:pointer">Terms of Service</a> and <a style="color:var(--accent);cursor:pointer">Privacy Policy</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     APP SCREEN
+════════════════════════════════════════════════════════════ -->
+<div id="app-screen">
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <div class="logo">
+        <div class="logo-mark"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+        <div class="logo-name">Price<span>Pulse</span></div>
+      </div>
+      <div class="wallet-chip" onclick="openModal('topup-modal')">
+        <div class="wc-label">PP Wallet</div>
+        <div class="wc-bal" id="sb-bal">₹0</div>
+        <div class="wc-sub">Auto-buys when price drops</div>
+        <div class="wc-row">
+          <span style="font-size:11px;color:rgba(255,255,255,.35)">Tap to add funds</span>
+          <button class="wc-add" onclick="event.stopPropagation();openModal('topup-modal')">+ Add money</button>
+        </div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-sec">Explore</div>
+      <button class="nav-item active" id="nav-dashboard" onclick="go('dashboard')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>Dashboard</button>
+      <button class="nav-item" id="nav-search" onclick="go('search')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.5 6.5 0 1 0 14 15.5l.27.28v.79l5 5L20.49 20l-5-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>Search & track</button>
+      <button class="nav-item" id="nav-compare" onclick="go('compare')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 3L5 6.99h3V14h2V6.99h3L9 3zm7 14.01V10h-2v7.01h-3L15 21l4-3.99h-3z"/></svg>Compare prices</button>
+      <div class="nav-sec">My stuff</div>
+      <button class="nav-item" id="nav-targets" onclick="go('targets')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>Target wallets</button>
+      <button class="nav-item" id="nav-alerts" onclick="go('alerts')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>Alerts<span class="nav-badge" id="abadge">3</span></button>
+      <button class="nav-item" id="nav-orders" onclick="go('orders')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>Orders</button>
+      <button class="nav-item" id="nav-basket" onclick="go('basket')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.21 9l-4.38-6.56c-.19-.28-.51-.42-.83-.42s-.64.14-.83.43L6.79 9H2c-.55 0-1 .45-1 1l2.54 9.27c.23.84 1 1.46 1.92 1.46h13c.92 0 1.69-.62 1.93-1.46L21 10c0-.55-.45-1-1-1h-4.79zM9 9l3-4.4L15 9H9zm3 8c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>Basket</button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-avatar" id="user-avatar">A</div>
+      <div><div class="user-name" id="user-name-display">Arjun</div><div class="user-email" id="user-email-display">arjun@gmail.com</div></div>
+      <button class="logout-btn" onclick="doLogout()">Logout</button>
+    </div>
+  </aside>
+  <main class="main"><div class="main-inner" id="MC"></div></main>
+</div>
+</div>
+
+<!-- ── Wallet top-up modal ── -->
+<div class="modal-bg" id="topup-modal">
+  <div class="modal">
+    <div class="modal-title">Add money to wallet</div>
+    <div class="modal-sub">Funds are auto-debited when a target price is hit</div>
+    <div class="topup-grid">
+      <div class="topup-btn" onclick="setTopup(500,this)">₹500</div>
+      <div class="topup-btn" onclick="setTopup(1000,this)">₹1,000</div>
+      <div class="topup-btn" onclick="setTopup(2000,this)">₹2,000</div>
+      <div class="topup-btn" onclick="setTopup(5000,this)">₹5,000</div>
+      <div class="topup-btn" onclick="setTopup(10000,this)">₹10,000</div>
+      <div class="topup-btn" id="custom-topup-opt" onclick="setTopup(0,this)">Custom</div>
+    </div>
+    <div id="custom-amt-wrap" style="display:none;margin-bottom:14px">
+      <label class="flabel">Enter amount (₹)</label>
+      <input type="number" class="finput" id="custom-amt" placeholder="Enter amount" min="1"/>
+    </div>
+    <div style="background:var(--surface2);border-radius:var(--r3);padding:10px 14px;font-size:13px;color:var(--text2);margin-bottom:16px;border:1px solid var(--border)">
+      Balance: <strong id="bal-before" style="color:var(--ink)">₹0</strong> → After: <strong id="bal-after" style="color:var(--green)">₹0</strong>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn btn-outline" onclick="closeModal('topup-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="doTopup()">Add to wallet</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Add target modal ── -->
+<div class="modal-bg" id="target-modal">
+  <div class="modal">
+    <div class="modal-title">Set target price</div>
+    <div class="modal-sub">PricePulse auto-buys from your wallet when price drops</div>
+    <div class="fgroup"><label class="flabel">Product</label><select class="finput" id="tm-p" onchange="updateBalChk()"></select></div>
+    <div class="frow">
+      <div class="fgroup"><label class="flabel">Target price (₹)</label><input type="number" class="finput" id="tm-t" placeholder="e.g. 849" oninput="updateBalChk()"/></div>
+      <div class="fgroup"><label class="flabel">Platform</label>
+        <select class="finput" id="tm-pl">
+          <option value="any">Any platform</option>
+          <option value="amazon">Amazon</option>
+          <option value="flipkart">Flipkart</option>
+          <option value="blinkit">Blinkit</option>
+          <option value="zepto">Zepto</option>
+          <option value="croma">Croma</option>
+        </select>
+      </div>
+    </div>
+    <div class="fgroup"><label class="flabel">Action when price is hit</label>
+      <select class="finput" id="tm-a" onchange="updateBalChk()">
+        <option value="wallet">Auto-buy from PP Wallet</option>
+        <option value="alert">Alert only</option>
+      </select>
+    </div>
+    <div id="tm-bal-chk"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
+      <button class="btn btn-outline" onclick="closeModal('target-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveTarget()">Save target</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── UPI modal ── -->
+<div class="modal-bg" id="upi-modal">
+  <div class="modal" id="upi-inner"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════
+const PRODUCTS = [
+  {id:1,  name:'boAt Airdopes 141',        cat:'Electronics',  brand:'boAt',       emoji:'🎧', prices:{amazon:999,  flipkart:1049,croma:1099},              hist:gh(1200,999,90),  pred:849,  conf:82,vol:'medium',trend:'down', tip:'Price likely to drop ₹150 to ₹849 in 5–7 days. Sale patterns confirm.'},
+  {id:2,  name:'Samsung Galaxy Buds2',     cat:'Electronics',  brand:'Samsung',    emoji:'🎵', prices:{amazon:3499, flipkart:3299,croma:3699},              hist:gh(4000,3299,90), pred:3100, conf:71,vol:'high',  trend:'down', tip:'High volatility. ML predicts ₹3,100 in 10 days. Wait for sale.'},
+  {id:3,  name:'Prestige 3L Cooker',       cat:'Kitchen',      brand:'Prestige',   emoji:'🍳', prices:{amazon:899,  flipkart:849, zepto:949},               hist:gh(950,849,90),   pred:799,  conf:65,vol:'low',   trend:'down', tip:'Steady drop. Expected ₹799 in 2 weeks. Safe to set wallet.'},
+  {id:4,  name:'Dettol Hand Wash 200ml',   cat:'Personal Care',brand:'Dettol',     emoji:'🧴', prices:{blinkit:89,  zepto:92,     amazon:85},               hist:gh(99,85,90),     pred:82,   conf:78,vol:'low',   trend:'down', tip:'Gradual decline. All-time low of ₹82 expected in 10 days.'},
+  {id:5,  name:'Amul Butter 500g',         cat:'Grocery',      brand:'Amul',       emoji:'🧈', prices:{blinkit:275, zepto:275,    amazon:289},              hist:gh(290,270,90),   pred:270,  conf:90,vol:'low',   trend:'stable',tip:'Stable commodity. Buy now — no significant drop expected.'},
+  {id:6,  name:'Philips Air Fryer HD9200', cat:'Kitchen',      brand:'Philips',    emoji:'🍟', prices:{amazon:4999, flipkart:4749,croma:5299},              hist:gh(5500,4749,90), pred:4499, conf:74,vol:'medium',trend:'down', tip:'Dropped ₹750 in 60 days. Expect ₹4,499 in 7 days.'},
+  {id:7,  name:'Logitech MX Master 3',     cat:'Electronics',  brand:'Logitech',   emoji:'🖱️', prices:{amazon:8995, flipkart:8499,croma:9499},              hist:gh(9500,8499,90), pred:7999, conf:68,vol:'medium',trend:'down', tip:'Slowly declining. Set a ₹7,999 wallet and wait.'},
+  {id:8,  name:'Tata Tea Gold 500g',       cat:'Grocery',      brand:'Tata',       emoji:'🍵', prices:{blinkit:210, zepto:215,    amazon:205},              hist:gh(225,205,90),   pred:199,  conf:85,vol:'low',   trend:'down', tip:'Seasonal dip coming. Amazon drops ₹10–15 during festive periods.'},
+  {id:9,  name:'Wipro 9W LED Bulbs ×10',  cat:'Home',         brand:'Wipro',      emoji:'💡', prices:{amazon:349,  flipkart:329, blinkit:389},             hist:gh(399,329,90),   pred:299,  conf:72,vol:'low',   trend:'down', tip:'Flash sale expected — ₹299 possible within 2 weeks.'},
+  {id:10, name:'Mamaearth Vit-C Wash',     cat:'Personal Care',brand:'Mamaearth',  emoji:'🫧', prices:{amazon:199,  flipkart:189, blinkit:205},             hist:gh(249,189,90),   pred:169,  conf:76,vol:'medium',trend:'down', tip:'D2C brand. Frequent 20% off sales. Predicted ₹169 in 7 days.'},
+  {id:11, name:'Apple AirPods 3rd Gen',    cat:'Electronics',  brand:'Apple',      emoji:'🍎', prices:{amazon:17900,flipkart:17500,croma:18500},            hist:gh(19999,17500,90),pred:16500,conf:62,vol:'low',  trend:'down', tip:'Dropping as AirPods 4 gains traction. Good time to set wallet.'},
+  {id:12, name:'Instant Pot Duo 5.7L',     cat:'Kitchen',      brand:'Instant Pot',emoji:'🫕', prices:{amazon:7999, flipkart:7499,croma:8499},              hist:gh(8999,7499,90), pred:6999, conf:70,vol:'medium',trend:'down', tip:'Pre-sale dip detected. Good target at ₹6,999.'},
+  {id:13, name:'Mi Smart Band 8',          cat:'Electronics',  brand:'Xiaomi',     emoji:'⌚', prices:{amazon:2999, flipkart:2799,croma:3199},              hist:gh(3499,2799,90), pred:2499, conf:77,vol:'medium',trend:'down', tip:'New model incoming — older one dropping fast.'},
+  {id:14, name:'Vim Dishwash Bar ×4',      cat:'Household',    brand:'Vim',        emoji:'🧼', prices:{blinkit:99,  zepto:104,    amazon:95},               hist:gh(119,95,90),    pred:89,   conf:80,vol:'low',   trend:'down', tip:'Consistent steady decline. ₹89 expected in 5 days.'},
+  {id:15, name:'Cadbury Dairy Milk 123g',  cat:'Snacks',       brand:'Cadbury',    emoji:'🍫', prices:{blinkit:55,  zepto:58,     amazon:52},               hist:gh(65,52,90),     pred:49,   conf:70,vol:'low',   trend:'stable',tip:'Stable. Small discount during festive sales only.'},
+  {id:16, name:'Nike Revolution 6',        cat:'Footwear',     brand:'Nike',       emoji:'👟', prices:{amazon:3499, flipkart:3299,croma:3799},              hist:gh(4299,3299,90), pred:2999, conf:66,vol:'high',  trend:'down', tip:'High sale frequency. ₹2,999 likely in 10 days.'},
+  {id:17, name:'Nescafé Classic 200g',     cat:'Grocery',      brand:'Nestlé',     emoji:'☕', prices:{blinkit:375, zepto:379,    amazon:365},              hist:gh(420,365,90),   pred:349,  conf:82,vol:'low',   trend:'down', tip:'Steady decline. ₹349 expected within a week on Amazon.'},
+  {id:18, name:'Redmi Note 13 5G',         cat:'Electronics',  brand:'Xiaomi',     emoji:'📱', prices:{amazon:14999,flipkart:14499,croma:15999},            hist:gh(16999,14499,90),pred:13499,conf:71,vol:'high', trend:'down', tip:'New model launch driving price down. ₹13,499 within 14 days.'},
+  {id:19, name:'Bombay Shaving Kit',       cat:'Personal Care',brand:'Bombay',     emoji:'🪒', prices:{amazon:399,  flipkart:379, blinkit:419},             hist:gh(499,379,90),   pred:349,  conf:68,vol:'medium',trend:'down', tip:'D2C brand. Heavy discounts during weekends.'},
+  {id:20, name:'Parle-G 800g',            cat:'Snacks',       brand:'Parle',      emoji:'🍪', prices:{blinkit:45,  zepto:47,     amazon:44},               hist:gh(55,44,90),     pred:42,   conf:88,vol:'low',   trend:'stable',tip:'Prices near all-time low. Buy now — no need to wait.'},
+  {id:21, name:'Himalaya Face Wash 150ml', cat:'Personal Care',brand:'Himalaya',   emoji:'🌿', prices:{blinkit:89,  zepto:92,     amazon:85},               hist:gh(110,85,90),    pred:79,   conf:75,vol:'low',   trend:'down', tip:'Consistent deals during Amazon health sales.'},
+  {id:22, name:'Lenovo IdeaPad Slim 3',    cat:'Electronics',  brand:'Lenovo',     emoji:'💻', prices:{amazon:38999,flipkart:37499,croma:41999},            hist:gh(44999,37499,90),pred:34999,conf:63,vol:'high', trend:'down', tip:'Education sale season drops this by ₹3,000+.'},
+  {id:23, name:'Surf Excel Matic 2kg',     cat:'Household',    brand:'HUL',        emoji:'🫧', prices:{blinkit:299, zepto:305,    amazon:289},              hist:gh(349,289,90),   pred:269,  conf:79,vol:'low',   trend:'down', tip:'Bulk washing powder at near-yearly low. Drop to ₹269 expected.'},
+  {id:24, name:'Maggi Masala Noodles ×12', cat:'Snacks',       brand:'Nestlé',     emoji:'🍜', prices:{blinkit:148, zepto:152,    amazon:144},              hist:gh(175,144,90),   pred:135,  conf:73,vol:'low',   trend:'down', tip:'Multi-pack prices dropping. ₹135 expected in 7 days.'},
+  {id:25, name:'JBL Flip 6 Speaker',       cat:'Electronics',  brand:'JBL',        emoji:'🔊', prices:{amazon:9999, flipkart:9499,croma:10999},             hist:gh(11999,9499,90),pred:8999, conf:69,vol:'medium',trend:'down', tip:'Newer model out — Flip 6 dropping. Set wallet at ₹8,999.'},
+  {id:26, name:'Bosch 600W Mixer',         cat:'Kitchen',      brand:'Bosch',      emoji:'🍹', prices:{amazon:3499, flipkart:3299,croma:3799},              hist:gh(3999,3299,90), pred:2999, conf:67,vol:'medium',trend:'down', tip:'Post-festive price correction in progress. Wait for ₹2,999.'},
+  {id:27, name:'Fevicol SH 1kg',           cat:'Home',         brand:'Pidilite',   emoji:'🔧', prices:{amazon:149,  flipkart:139, blinkit:159},             hist:gh(179,139,90),   pred:129,  conf:70,vol:'low',   trend:'down', tip:'Slow but steady decline. Best time to stock up at ₹129.'},
+  {id:28, name:'Sugar Free Natura 500 tabs',cat:'Health',      brand:'Zydus',      emoji:'💊', prices:{blinkit:199, zepto:205,    amazon:189},              hist:gh(229,189,90),   pred:179,  conf:74,vol:'low',   trend:'down', tip:'Healthcare product with consistent seasonal discounts.'},
+  {id:29, name:'Pedigree Adult Dog Food 3kg',cat:'Pets',       brand:'Mars',       emoji:'🐕', prices:{amazon:699,  flipkart:649, blinkit:729},             hist:gh(849,649,90),   pred:599,  conf:72,vol:'medium',trend:'down', tip:'Subscription deals bring this lower. Auto-buy at ₹599.'},
+  {id:30, name:'Quaker Oats 2kg',          cat:'Grocery',      brand:'Quaker',     emoji:'🌾', prices:{blinkit:299, zepto:309,    amazon:289},              hist:gh(349,289,90),   pred:269,  conf:78,vol:'low',   trend:'down', tip:'Health category on discount trend. ₹269 in 10 days.'},
+  {id:31, name:'Sony WH-1000XM4',          cat:'Electronics',  brand:'Sony',       emoji:'🎶', prices:{amazon:19990,flipkart:18990,croma:21990},           hist:gh(24999,18990,90),pred:17500,conf:65,vol:'high',  trend:'down', tip:'XM5 out now. XM4 dropping fast — ₹17,500 expected soon.'},
+  {id:32, name:'Lays American Cream ×30',  cat:'Snacks',       brand:'PepsiCo',    emoji:'🥔', prices:{blinkit:499, zepto:510,    amazon:479},              hist:gh(599,479,90),   pred:449,  conf:71,vol:'low',   trend:'down', tip:'Bulk snack packs trend down during non-festive periods.'},
+  {id:33, name:'Dyson V8 Vacuum',          cat:'Home',         brand:'Dyson',      emoji:'🌀', prices:{amazon:32900,flipkart:31500,croma:34990},            hist:gh(38999,31500,90),pred:29500,conf:61,vol:'high',  trend:'down', tip:'V10 launch pushing V8 prices down. Big drop possible.'},
+  {id:34, name:'Himalaya Ashwagandha 60tab',cat:'Health',      brand:'Himalaya',   emoji:'🍃', prices:{blinkit:149, zepto:155,    amazon:139},              hist:gh(199,139,90),   pred:129,  conf:76,vol:'low',   trend:'down', tip:'Wellness category steadily discounting. ₹129 in 7 days.'},
+  {id:35, name:'Puma Sports T-Shirt',       cat:'Clothing',     brand:'Puma',       emoji:'👕', prices:{amazon:699,  flipkart:649, croma:799},               hist:gh(899,649,90),   pred:549,  conf:67,vol:'high',  trend:'down', tip:'End-of-season sale approaching. Deep discount expected.'},
+  {id:36, name:'Fortune Sunflower Oil 5L',  cat:'Grocery',     brand:'Adani',      emoji:'🫙', prices:{blinkit:649, zepto:655,    amazon:629},              hist:gh(729,629,90),   pred:599,  conf:80,vol:'low',   trend:'down', tip:'Commodity price falling globally. ₹599 in 2 weeks.'},
+  {id:37, name:'OnePlus Nord CE 3 Lite',    cat:'Electronics',  brand:'OnePlus',    emoji:'📲', prices:{amazon:17499,flipkart:16999,croma:18499},            hist:gh(19999,16999,90),pred:15499,conf:68,vol:'high',  trend:'down', tip:'OnePlus Nord 4 pushing this down. ₹15,499 likely soon.'},
+  {id:38, name:'Milton Thermosteel 1L',     cat:'Home',         brand:'Milton',     emoji:'🫖', prices:{amazon:499,  flipkart:469, blinkit:549},             hist:gh(599,469,90),   pred:429,  conf:74,vol:'low',   trend:'down', tip:'Consistent discount cycle every 3 weeks. ₹429 incoming.'},
+  {id:39, name:'Iodex Rapid Action 50g',    cat:'Health',       brand:'GSK',        emoji:'💆', prices:{blinkit:89,  zepto:92,     amazon:85},               hist:gh(109,85,90),    pred:79,   conf:72,vol:'low',   trend:'down', tip:'Health product with steady demand and small price dips.'},
+  {id:40, name:'Adidas Ultraboost 22',      cat:'Footwear',     brand:'Adidas',     emoji:'🥿', prices:{amazon:11999,flipkart:10999,croma:12999},            hist:gh(14999,10999,90),pred:9999, conf:64,vol:'high',  trend:'down', tip:'Previous season model. Expect ₹9,999 during next sale.'},
+  {id:41, name:'Bonn Multigrain Bread',     cat:'Grocery',      brand:'Bonn',       emoji:'🍞', prices:{blinkit:55,  zepto:58,     amazon:52},               hist:gh(69,52,90),     pred:49,   conf:75,vol:'low',   trend:'stable',tip:'Bakery staple. Stable with minor discount spikes.'},
+  {id:42, name:'Noise ColorFit Pro 4',      cat:'Electronics',  brand:'Noise',      emoji:'🔋', prices:{amazon:3999, flipkart:3699,croma:4299},              hist:gh(4999,3699,90), pred:3299, conf:70,vol:'medium',trend:'down', tip:'Budget smartwatch segment highly competitive. ₹3,299 soon.'},
+];
+
+const PLAT_COLORS = {amazon:'#FF9900',flipkart:'#2874F0',blinkit:'#F7C535',zepto:'#8B5CF6',instamart:'#F97316',croma:'#003087',reliance:'#14532D',any:'#6B7280'};
+const MERCHANTS = {amazon:'amazon@icici',flipkart:'flipkart@ybl',blinkit:'blinkit@kotak',zepto:'zepto@icici',instamart:'instamart@sbi',croma:'croma@hdfc',any:'merchant@upi'};
+
+// Real UPI app SVG logos
+const UPI_APPS = [
+  {id:'gpay',name:'Google Pay',color:'#fff',bg:'#1a73e8',
+   svg:`<svg viewBox="0 0 48 48" width="44" height="44"><rect width="48" height="48" rx="12" fill="#fff"/><text x="24" y="28" text-anchor="middle" font-size="10" font-weight="700" font-family="Arial" fill="#1a73e8">GPay</text><circle cx="12" cy="20" r="6" fill="#EA4335"/><circle cx="20" cy="14" r="6" fill="#4285F4"/><circle cx="28" cy="14" r="6" fill="#FBBC04"/><circle cx="36" cy="20" r="6" fill="#34A853"/></svg>`},
+  {id:'phonepe',name:'PhonePe',color:'#fff',bg:'#5f259f',
+   svg:`<svg viewBox="0 0 48 48" width="44" height="44"><rect width="48" height="48" rx="12" fill="#5f259f"/><text x="24" y="20" text-anchor="middle" font-size="8" font-weight="700" font-family="Arial" fill="white">Phone</text><text x="24" y="31" text-anchor="middle" font-size="8" font-weight="700" font-family="Arial" fill="#CBB3F5">Pe</text><path d="M20 34 L28 34 L28 24 C28 20 24 18 21 20 L20 21 Z" fill="#CBB3F5" opacity="0.6"/></svg>`},
+  {id:'paytm',name:'Paytm',color:'#fff',bg:'#002970',
+   svg:`<svg viewBox="0 0 48 48" width="44" height="44"><rect width="48" height="48" rx="12" fill="#002970"/><rect x="6" y="16" width="36" height="16" rx="4" fill="#00BAF2"/><text x="24" y="28" text-anchor="middle" font-size="9" font-weight="800" font-family="Arial" fill="white">PAYTM</text></svg>`},
+  {id:'bhim',name:'BHIM',color:'#fff',bg:'#0d6bb5',
+   svg:`<svg viewBox="0 0 48 48" width="44" height="44"><rect width="48" height="48" rx="12" fill="#0d6bb5"/><rect x="6" y="6" width="36" height="12" rx="2" fill="#FF9933"/><rect x="6" y="18" width="36" height="12" rx="0" fill="white"/><rect x="6" y="30" width="36" height="12" rx="2" fill="#138808"/><text x="24" y="26" text-anchor="middle" font-size="8" font-weight="700" font-family="Arial" fill="#000080">BHIM</text></svg>`},
+];
+
+// State
+let S = {
+  user: null,
+  walletBalance: 0,
+  targets: [
+    {id:1,pid:1,target:849,plat:'amazon',action:'wallet',date:'Jan 10'},
+    {id:2,pid:2,target:3000,plat:'flipkart',action:'alert',date:'Jan 12'},
+    {id:3,pid:6,target:4499,plat:'any',action:'wallet',date:'Jan 15'},
+  ],
+  alerts: [
+    {id:1,type:'drop',pid:1,msg:'Price dropped ₹50 on Amazon',time:'2h ago',read:false},
+    {id:2,type:'predict',pid:2,msg:'ML predicts 11% drop in 7 days',time:'5h ago',read:false},
+    {id:3,type:'hit',pid:4,msg:'Target ₹85 reached on Amazon!',time:'1d ago',read:false},
+    {id:4,type:'drop',pid:5,msg:'New low: ₹270 on Blinkit',time:'2d ago',read:true},
+    {id:5,type:'predict',pid:3,msg:'Expected ₹799 this week',time:'3d ago',read:true},
+  ],
+  orders: [],
+  selPid: 1,
+  curPage: 'dashboard',
+  nextId: 10,
+  pendingTopup: 0,
+  upi: {pid:null,plat:null,price:null,app:null},
+};
+
+function gh(s,e,n){const a=[];for(let i=0;i<n;i++){const base=s+(e-s)*(i/n),noise=(Math.random()-.5)*55,sp=(i===22||i===47||i===71)?-80:0;a.push(Math.max(e*.78,Math.round((base+noise+sp)/5)*5));}return a;}
+function bp(p){return Math.min(...Object.values(p.prices));}
+function pid(id){return PRODUCTS.find(x=>x.id===id);}
+function cap(s){return s?s[0].toUpperCase()+s.slice(1):s;}
+function fmt(n){return '₹'+Math.round(n).toLocaleString('en-IN');}
+let charts={};
+function dc(){Object.values(charts).forEach(c=>{try{c.destroy();}catch(e){}});for(const k in charts)delete charts[k];}
+
+// ═══════════════════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════════════════
+function switchAuthTab(tab){
+  document.getElementById('tab-login').classList.toggle('active',tab==='login');
+  document.getElementById('tab-signup').classList.toggle('active',tab==='signup');
+  document.getElementById('login-form').style.display=tab==='login'?'':'none';
+  document.getElementById('signup-form').style.display=tab==='signup'?'':'none';
+}
+
+function togglePwd(id,el){
+  const inp=document.getElementById(id);
+  const show=inp.type==='password';
+  inp.type=show?'text':'password';
+  el.textContent=show?'Hide':'Show';
+}
+
+function doLogin(){
+  const email=document.getElementById('login-email').value.trim();
+  const pwd=document.getElementById('login-pwd').value;
+  const err=document.getElementById('login-error');
+  if(!email){err.textContent='Please enter your email.';err.style.display='block';return;}
+  if(!pwd){err.textContent='Please enter your password.';err.style.display='block';return;}
+  // Demo: accept any credentials
+  err.style.display='none';
+  const name=email.split('@')[0];
+  S.user={name:cap(name),email,initials:cap(name)[0].toUpperCase()};
+  launchApp();
+}
+
+function doSignup(){
+  const fname=document.getElementById('su-fname').value.trim();
+  const email=document.getElementById('su-email').value.trim();
+  const pwd=document.getElementById('su-pwd').value;
+  const err=document.getElementById('signup-error');
+  if(!fname){err.textContent='Enter your first name.';err.style.display='block';return;}
+  if(!email||!email.includes('@')){err.textContent='Enter a valid email.';err.style.display='block';return;}
+  if(pwd.length<8){err.textContent='Password must be at least 8 characters.';err.style.display='block';return;}
+  err.style.display='none';
+  S.user={name:fname,email,initials:fname[0].toUpperCase()};
+  launchApp();
+}
+
+function doSocial(provider){
+  S.user={name:'Demo User',email:`demo@${provider.toLowerCase()}.com`,initials:'D'};
+  launchApp();
+}
+
+function launchApp(){
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('app-screen').style.display='block';
+  document.getElementById('user-name-display').textContent=S.user.name;
+  document.getElementById('user-email-display').textContent=S.user.email;
+  document.getElementById('user-avatar').textContent=S.user.initials;
+  refreshSidebar();
+  go('dashboard');
+}
+
+function doLogout(){
+  S.user=null;
+  document.getElementById('app-screen').style.display='none';
+  document.getElementById('auth-screen').style.display='flex';
+  document.getElementById('login-email').value='';
+  document.getElementById('login-pwd').value='';
+  document.getElementById('login-error').style.display='none';
+}
+
+// ═══════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════
+function go(page){
+  S.curPage=page;dc();
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const nb=document.getElementById('nav-'+page);if(nb)nb.classList.add('active');
+  const m=document.getElementById('MC');m.innerHTML='';m.className='main-inner fade-up';
+  refreshSidebar();
+  ({dashboard:pgDash,search:pgSearch,compare:pgCompare,targets:pgTargets,alerts:pgAlerts,orders:pgOrders,basket:pgBasket}[page]||pgDash)();
+}
+
+function refreshSidebar(){
+  document.getElementById('sb-bal').textContent=fmt(S.walletBalance);
+  const n=S.alerts.filter(a=>!a.read).length;
+  const b=document.getElementById('abadge');
+  if(b){b.textContent=n;b.style.display=n?'':'none';}
+}
+
+// ═══════════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════════
+function pgDash(){
+  const m=document.getElementById('MC');
+  const drops=PRODUCTS.filter(p=>p.trend==='down').sort((a,b)=>(bp(a)-a.pred)/bp(a)-(bp(b)-b.pred)/bp(b)).slice(0,5);
+  const saved=S.orders.reduce((s,o)=>s+(o.saved||0),0)+1247;
+  m.innerHTML=`
+  <div class="ph">
+    <div><div class="ph-title">Good morning, ${S.user?.name||'there'} 👋</div><div class="ph-sub">Here's your shopping intelligence today</div></div>
+    <button class="btn btn-primary" onclick="go('search')">+ Track product</button>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Total saved</div><div class="metric-value" style="color:var(--green)">${fmt(saved)}</div><div class="metric-sub">this month</div></div>
+    <div class="metric"><div class="metric-label">Wallet balance</div><div class="metric-value" style="color:var(--accent)">${fmt(S.walletBalance)}</div><div class="metric-sub"><span style="cursor:pointer;color:var(--accent);text-decoration:underline" onclick="openModal('topup-modal')">Add funds</span></div></div>
+    <div class="metric"><div class="metric-label">Watching</div><div class="metric-value">${S.targets.length}</div><div class="metric-sub">active targets</div></div>
+    <div class="metric"><div class="metric-label">Alerts</div><div class="metric-value" style="color:${S.alerts.filter(a=>!a.read).length?'var(--red)':'var(--ink)'}">${S.alerts.filter(a=>!a.read).length}</div><div class="metric-sub">unread</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:16px;margin-bottom:16px">
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="font-family:var(--serif);font-size:15px;font-weight:700;color:var(--ink)">Top drops this week</div>
+        <button class="btn btn-outline btn-sm" onclick="go('search')">See all</button>
+      </div>
+      ${drops.map(p=>{const save=bp(p)-p.pred,pct=Math.round(save/bp(p)*100);return `
+        <div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="go('search');setTimeout(()=>pickP(${p.id}),80)">
+          <div style="width:38px;height:38px;background:var(--surface2);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;border:1px solid var(--border)">${p.emoji}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div>
+            <div style="font-size:11px;color:var(--text3)">${p.brand}</div>
+          </div>
+          <div style="text-align:right;flex-shrink:0">
+            <div style="font-family:var(--serif);font-size:14px;font-weight:700">${fmt(bp(p))}</div>
+            <span class="badge badge-green" style="font-size:10px">↓${pct}% predicted</span>
+          </div>
+        </div>`;}).join('')}
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="card">
+        <div style="font-family:var(--serif);font-size:15px;font-weight:700;margin-bottom:12px;color:var(--ink)">Active wallets</div>
+        ${S.targets.slice(0,3).map(t=>{const p=pid(t.pid);if(!p)return '';const cur=bp(p),pct=Math.max(5,Math.min(95,Math.round((cur-t.target)/(cur*.28)*100)));return `
+          <div class="wi" style="padding:10px 0">
+            <div class="wi-emoji" style="width:34px;height:34px;font-size:16px">${p.emoji}</div>
+            <div style="flex:1">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:12px;font-weight:600;color:var(--ink)">${p.name}</span>
+                <span class="badge ${t.action==='wallet'?'badge-teal':'badge-blue'}" style="font-size:10px">${t.action==='wallet'?'Auto':'Alert'}</span>
+              </div>
+              <div class="wbar"><div class="wbar-fill" style="width:${pct}%"></div></div>
+              <div style="display:flex;justify-content:space-between;margin-top:3px">
+                <span style="font-size:10px;color:var(--text3)">${fmt(cur)}</span>
+                <span style="font-size:10px;color:var(--accent);font-weight:600">${fmt(t.target)}</span>
+              </div>
+            </div>
+          </div>`;}).join('')}
+        <button class="btn btn-outline btn-sm" style="width:100%;justify-content:center;margin-top:8px" onclick="go('targets')">View all</button>
+      </div>
+      <div class="card">
+        <div style="font-family:var(--serif);font-size:15px;font-weight:700;margin-bottom:10px;color:var(--ink)">Recent alerts</div>
+        ${S.alerts.filter(a=>!a.read).slice(0,3).map(a=>{const p=pid(a.pid);return `
+          <div class="alert-row">
+            <div class="alert-pip" style="background:${a.type==='hit'?'var(--green)':a.type==='drop'?'var(--blue)':'var(--amber)'}"></div>
+            <div><div style="font-size:13px">${p?.emoji||''} ${a.msg}</div><div style="font-size:11px;color:var(--text3);margin-top:2px">${a.time}</div></div>
+          </div>`;}).join('')}
+        <button class="btn btn-outline btn-sm" style="width:100%;justify-content:center;margin-top:8px" onclick="go('alerts')">View all</button>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <div style="font-family:var(--serif);font-size:15px;font-weight:700;color:var(--ink)">🎧 boAt Airdopes 141 · price history</div>
+      <span class="badge badge-green">↓ Drop expected soon</span>
+    </div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:6px">90 days · dashed = ML forecast</div>
+    <div class="chart-wrap" style="height:150px"><canvas id="DC"></canvas></div>
+    <div class="pred-strip">
+      <div class="pred-item"><div class="pred-lbl">Current</div><div class="pred-val" style="color:var(--ink)">${fmt(999)}</div></div>
+      <div class="pred-item"><div class="pred-lbl">Predicted 7d</div><div class="pred-val" style="color:var(--green)">${fmt(849)}</div></div>
+      <div class="pred-item"><div class="pred-lbl">Confidence</div><div class="pred-val" style="color:var(--amber)">82%</div></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="openTargetFor(1)">Set auto-buy target</button>
+      <button class="btn btn-green" onclick="openUPI(1)">Buy now · UPI</button>
+    </div>
+  </div>`;
+  setTimeout(()=>{const c=document.getElementById('DC');if(!c)return;const d=PRODUCTS[0].hist;charts.dc=mkChart(c,d,849);},50);
+}
+
+function mkChart(ctx,data,pred){
+  return new Chart(ctx,{type:'line',data:{labels:data.map((_,i)=>i%15===0?`Day ${i+1}`:''),datasets:[
+    {data,borderColor:'#FF5722',borderWidth:2,pointRadius:0,tension:.4,fill:true,backgroundColor:'rgba(255,87,34,0.06)'},
+    {data:[...Array(80).fill(null),...Array(10).fill(pred)],borderColor:'rgba(22,163,74,.55)',borderWidth:1.5,borderDash:[5,4],pointRadius:0,fill:false}
+  ]},options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmt(c.raw)}}},
+    scales:{x:{grid:{display:false},ticks:{color:'#A8A49C',font:{size:10}}},
+      y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{color:'#A8A49C',font:{size:10},callback:v=>fmt(v)}}},
+    animation:false,responsive:true,maintainAspectRatio:false}});
+}
+
+// ═══════════════════════════════════════════════════════
+// SEARCH
+// ═══════════════════════════════════════════════════════
+function pgSearch(pre=null){
+  if(pre) S.selPid=pre;
+  const m=document.getElementById('MC');
+  m.innerHTML=`
+  <div class="ph"><div><div class="ph-title">Search products</div><div class="ph-sub">${PRODUCTS.length} products tracked across platforms</div></div></div>
+  <div class="search-wrap">
+    <div class="search-bar">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A8A49C" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="si" type="text" placeholder="Search products, brands, categories… (try 'Sony', 'kitchen', 'Nike')" autocomplete="off" oninput="doSrch(this.value)" onfocus="doSrch(this.value)"/>
+      <svg id="si-x" width="14" height="14" viewBox="0 0 24 24" fill="#A8A49C" style="cursor:pointer;display:none" onclick="clrSrch()"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+    </div>
+    <div class="sdd" id="srch-dd"></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1.55fr;gap:18px;align-items:start">
+    <div>
+      <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">All (${PRODUCTS.length})</div>
+      <div class="pg" style="grid-template-columns:1fr 1fr;" id="pgrid">${renderPGrid(PRODUCTS)}</div>
+    </div>
+    <div id="pdetail">${renderPDetail(pid(S.selPid)||PRODUCTS[0])}</div>
+  </div>`;
+  document.addEventListener('click',outDD);
+  setTimeout(()=>drawPC(pid(S.selPid)||PRODUCTS[0]),60);
+}
+
+function outDD(e){if(!e.target.closest('.search-wrap')){document.getElementById('srch-dd')?.classList.remove('open');}}
+
+function doSrch(q){
+  const x=document.getElementById('si-x');if(x)x.style.display=q?'block':'none';
+  const dd=document.getElementById('srch-dd'),pg=document.getElementById('pgrid');
+  const res=q.trim()?PRODUCTS.filter(p=>[p.name,p.brand,p.cat].some(s=>s.toLowerCase().includes(q.toLowerCase()))):PRODUCTS;
+  if(pg) pg.innerHTML=renderPGrid(res);
+  if(!q.trim()){dd?.classList.remove('open');return;}
+  dd.innerHTML=res.length===0
+    ?`<div style="padding:20px;text-align:center;color:var(--text3);font-size:13px">No results for "<strong>${q}</strong>"</div>`
+    :res.slice(0,9).map(p=>`
+      <div class="sri" onclick="pickP(${p.id})">
+        <div class="sri-emoji">${p.emoji}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600;color:var(--ink)">${hlSrch(p.name,q)}</div>
+          <div style="font-size:11px;color:var(--text3)">${p.brand} · ${p.cat} · <span style="color:${p.trend==='down'?'var(--green)':'var(--text3)'}">${p.trend==='down'?'↓ dropping':'→ stable'}</span></div>
+        </div>
+        <div class="sri-price">${fmt(bp(p))}</div>
+      </div>`).join('');
+  dd.classList.add('open');
+}
+
+function hlSrch(t,q){return t.replace(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi'),'<mark style="background:#FFF3F0;color:#FF5722;border-radius:2px;padding:0 2px;font-weight:700">$1</mark>');}
+function clrSrch(){const si=document.getElementById('si');if(si)si.value='';document.getElementById('si-x').style.display='none';document.getElementById('srch-dd')?.classList.remove('open');document.getElementById('pgrid').innerHTML=renderPGrid(PRODUCTS);}
+
+function pickP(id){
+  S.selPid=id;
+  document.getElementById('srch-dd')?.classList.remove('open');
+  const si=document.getElementById('si');if(si)si.value='';
+  document.getElementById('si-x').style.display='none';
+  const d=document.getElementById('pdetail'),pg=document.getElementById('pgrid');
+  if(d){d.innerHTML=renderPDetail(pid(id));dc();setTimeout(()=>drawPC(pid(id)),60);}
+  if(pg)pg.innerHTML=renderPGrid(PRODUCTS,id);
+}
+
+function renderPGrid(prods,activeId=null){
+  const aid=activeId||S.selPid;
+  return prods.map(p=>`
+    <div class="pc ${p.id===aid?'sel':''}" onclick="pickP(${p.id})">
+      <div class="pc-dot" style="background:${p.trend==='down'?'var(--green)':p.trend==='up'?'var(--red)':'var(--amber)'}"></div>
+      <span class="pc-emoji">${p.emoji}</span>
+      <div class="pc-name">${p.name}</div>
+      <div class="pc-cat">${p.cat}</div>
+      <div class="pc-price">${fmt(bp(p))}</div>
+      <div class="pc-pred">${p.trend==='down'?'↓ pred. '+fmt(p.pred):'→ stable'}</div>
+    </div>`).join('');
+}
+
+function renderPDetail(p){
+  if(!p)return '';
+  const best=bp(p),entries=Object.entries(p.prices).sort((a,b)=>a[1]-b[1]);
+  return `<div class="card fade-up">
+    <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:16px">
+      <div style="width:54px;height:54px;background:var(--surface2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;border:1px solid var(--border)">${p.emoji}</div>
+      <div style="flex:1">
+        <div style="font-family:var(--serif);font-size:17px;font-weight:800;color:var(--ink);line-height:1.2">${p.name}</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:3px">${p.cat} · ${p.brand}</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+          <span class="badge ${p.trend==='down'?'badge-green':'badge-amber'}">${p.trend==='down'?'↓ dropping':'→ stable'}</span>
+          <span class="badge badge-blue">${p.conf}% confidence</span>
+          <span class="badge badge-orange">${p.vol} volatility</span>
+        </div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-family:var(--serif);font-size:26px;font-weight:800;color:var(--ink)">${fmt(best)}</div>
+        <div style="font-size:11px;color:var(--text3)">best price now</div>
+      </div>
+    </div>
+    <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">90-day price history</div>
+    <div class="chart-wrap" style="height:140px"><canvas id="PC"></canvas></div>
+    <div class="pred-strip">
+      <div class="pred-item"><div class="pred-lbl">Predicted 7d</div><div class="pred-val" style="color:var(--green)">${fmt(p.pred)}</div></div>
+      <div class="pred-item"><div class="pred-lbl">Volatility</div><div class="pred-val" style="color:${p.vol==='low'?'var(--green)':p.vol==='medium'?'var(--amber)':'var(--red)'}">${p.vol}</div></div>
+      <div class="pred-item"><div class="pred-lbl">Best time</div><div class="pred-val" style="color:var(--accent);font-size:13px">${p.trend==='down'?'Wait ~7d':'Buy now'}</div></div>
+    </div>
+    <div style="margin-top:14px;margin-bottom:3px;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">Compare platforms</div>
+    ${entries.map(([plat,price],i)=>`
+      <div class="plat-row">
+        <div style="width:30px;height:30px;border-radius:7px;background:${PLAT_COLORS[plat]||'#888'};display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:800;margin-right:10px;flex-shrink:0">${cap(plat)[0]}</div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--ink)">${cap(plat)}</div><div style="font-size:11px;color:${i===0?'var(--green)':'var(--text3)'};font-weight:${i===0?700:400}">${i===0?'Cheapest':'+'+fmt(price-entries[0][1])}</div></div>
+        <div style="font-family:var(--serif);font-size:15px;font-weight:700;color:${i===0?'var(--green)':'var(--ink)'}">${fmt(price)}</div>
+        ${i===0?`<button class="btn btn-green btn-sm" style="margin-left:10px" onclick="openUPI(${p.id},'${plat}')">Buy · UPI</button>`:''}
+      </div>`).join('')}
+    <div class="insight-box"><div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:3px">💡 Price Pulse insight</div><div style="font-size:13px;color:var(--text2);line-height:1.6">${p.tip}</div></div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="openTargetFor(${p.id})">Set auto-buy target</button>
+      <button class="btn btn-green" onclick="openUPI(${p.id})">Buy now · UPI</button>
+    </div>
+  </div>`;
+}
+
+function drawPC(p){
+  const c=document.getElementById('PC');if(!c)return;
+  charts.pc=mkChart(c,p.hist,p.pred);
+}
+
+// ═══════════════════════════════════════════════════════
+// COMPARE
+// ═══════════════════════════════════════════════════════
+function pgCompare(){
+  const m=document.getElementById('MC');
+  m.innerHTML=`
+  <div class="ph"><div><div class="ph-title">Compare prices</div><div class="ph-sub">Best deals across all platforms</div></div></div>
+  <div class="search-wrap" style="max-width:500px">
+    <div class="search-bar">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A8A49C" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" placeholder="Filter…" oninput="fltCmp(this.value)" style="flex:1;background:none;border:none;color:var(--ink);font-family:var(--sans);font-size:14px"/>
+    </div>
+  </div>
+  <div id="clist">${renderCmpList(PRODUCTS)}</div>`;
+}
+
+function fltCmp(q){const r=q?PRODUCTS.filter(p=>[p.name,p.brand,p.cat].some(s=>s.toLowerCase().includes(q.toLowerCase()))):PRODUCTS;document.getElementById('clist').innerHTML=renderCmpList(r);}
+
+function renderCmpList(prods){
+  return prods.map(p=>{const ent=Object.entries(p.prices).sort((a,b)=>a[1]-b[1]),min=ent[0][1],max=ent[ent.length-1][1];
+    return `<div class="card" style="margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <span style="font-size:20px">${p.emoji}</span>
+        <span style="font-family:var(--serif);font-size:14px;font-weight:700;color:var(--ink)">${p.name}</span>
+        <span class="badge badge-teal" style="margin-left:auto">Save ${fmt(max-min)}</span>
+        <button class="btn btn-outline btn-sm" onclick="go('search');setTimeout(()=>pickP(${p.id}),80)">Details</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(${ent.length},1fr);gap:8px">
+        ${ent.map(([plat,price],i)=>`
+          <div style="background:${i===0?'var(--greenbg)':'var(--surface2)'};border:1.5px solid ${i===0?'var(--greenborder)':'var(--border)'};border-radius:var(--r3);padding:12px">
+            <div style="width:28px;height:28px;border-radius:7px;background:${PLAT_COLORS[plat]||'#888'};display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:800;margin-bottom:8px">${cap(plat)[0]}</div>
+            <div style="font-size:11px;color:${i===0?'var(--green)':'var(--text3)'};font-weight:600;margin-bottom:2px">${i===0?'✓ Cheapest':cap(plat)}</div>
+            <div style="font-family:var(--serif);font-size:16px;font-weight:800;color:${i===0?'var(--green)':'var(--ink)'}">${fmt(price)}</div>
+            ${i===0?`<button class="btn btn-green btn-sm" style="width:100%;justify-content:center;margin-top:8px" onclick="openUPI(${p.id},'${plat}')">Buy · UPI</button>`:`<div style="font-size:11px;color:var(--text3);margin-top:4px">+${fmt(price-min)}</div>`}
+          </div>`).join('')}
+      </div>
+    </div>`;}).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// TARGETS
+// ═══════════════════════════════════════════════════════
+function pgTargets(){
+  const m=document.getElementById('MC');
+  m.innerHTML=`
+  <div class="ph">
+    <div><div class="ph-title">Target wallets</div><div class="ph-sub">Auto-buy from PP Wallet when price drops to target</div></div>
+    <button class="btn btn-primary" onclick="openTargetFor(null)">+ New target</button>
+  </div>
+  <div style="background:var(--ink);border-radius:var(--r);padding:20px 24px;margin-bottom:20px;display:flex;align-items:center;gap:20px">
+    <div style="flex:1">
+      <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">PP Wallet Balance</div>
+      <div style="font-family:var(--serif);font-size:32px;font-weight:800;color:white;letter-spacing:-.5px">${fmt(S.walletBalance)}</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.35);margin-top:3px">Auto-debited when target is triggered</div>
+    </div>
+    <button class="btn btn-primary" onclick="openModal('topup-modal')">Add money</button>
+  </div>
+  <div class="card" style="margin-bottom:16px">
+    ${S.targets.length===0?`<div style="text-align:center;padding:40px;color:var(--text3)">No targets yet.</div>`:
+    S.targets.map((t,i)=>{const p=pid(t.pid);if(!p)return '';const cur=bp(p),gap=Math.max(0,cur-t.target),pct=Math.max(5,Math.min(95,Math.round((cur-t.target)/(cur*.28)*100)));return `
+      <div class="wi">
+        <div class="wi-emoji">${p.emoji}</div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+            <span style="font-size:13px;font-weight:600;color:var(--ink)">${p.name}</span>
+            <span class="badge ${t.action==='wallet'?'badge-teal':'badge-blue'}">${t.action==='wallet'?'🔄 Wallet auto-buy':'🔔 Alert only'}</span>
+          </div>
+          <div style="font-size:11px;color:var(--text3);margin:3px 0">${cap(t.plat)} · Since ${t.date}</div>
+          <div class="wbar"><div class="wbar-fill" style="width:${pct}%"></div></div>
+          <div style="display:flex;justify-content:space-between;margin-top:4px">
+            <span style="font-size:11px;color:var(--text3)">Now ${fmt(cur)}</span>
+            <span style="font-size:11px;font-weight:600;color:var(--accent)">Target ${fmt(t.target)} · ${fmt(gap)} to go</span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-left:10px">
+          ${t.action==='wallet'?`<button class="btn btn-green btn-sm" onclick="simTrigger(${i})">Test</button>`:''}
+          <button class="btn btn-outline btn-sm" style="color:var(--red);border-color:#FCA5A5" onclick="S.targets.splice(${i},1);pgTargets()">✕</button>
+        </div>
+      </div>`;}).join('')}
+  </div>
+  <div style="background:var(--accentbg);border:1px solid var(--accentborder);border-radius:var(--r);padding:18px 20px">
+    <div style="font-family:var(--serif);font-size:14px;font-weight:700;color:var(--ink);margin-bottom:12px">How wallet auto-buy works</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+      ${[['1','Add funds','Top up your PP Wallet'],['2','Set target','Pick price + product'],['3','We watch','Every 15 min, all platforms'],['4','Auto-buy','Wallet pays instantly']].map(([n,t,d])=>`
+        <div style="background:white;border-radius:var(--r3);padding:14px;border:1px solid var(--accentborder)">
+          <div style="font-family:var(--serif);font-size:20px;font-weight:800;color:var(--accent);margin-bottom:6px">${n}</div>
+          <div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:3px">${t}</div>
+          <div style="font-size:11px;color:var(--text3)">${d}</div>
+        </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function simTrigger(i){
+  const t=S.targets[i];if(!t)return;
+  const p=pid(t.pid);
+  if(S.walletBalance<t.target){showToast('⚠️ Insufficient wallet balance. Add funds first.');openModal('topup-modal');return;}
+  S.walletBalance-=t.target;
+  S.orders.push({id:S.nextId++,pid:t.pid,plat:t.plat==='any'?Object.keys(p.prices)[0]:t.plat,price:t.target,method:'wallet',ref:'PP'+Date.now(),at:new Date().toLocaleString('en-IN'),saved:bp(p)-t.target});
+  S.alerts.unshift({id:Date.now(),type:'hit',pid:t.pid,msg:`✅ Auto-bought ${p.emoji} ${p.name} for ${fmt(t.target)} from wallet`,time:'just now',read:false});
+  refreshSidebar();pgTargets();showToast(`✅ Auto-bought ${p.name} for ${fmt(t.target)}!`);
+}
+
+// ═══════════════════════════════════════════════════════
+// ALERTS / ORDERS / BASKET
+// ═══════════════════════════════════════════════════════
+function pgAlerts(){
+  const m=document.getElementById('MC');
+  m.innerHTML=`
+  <div class="ph"><div><div class="ph-title">Smart alerts</div><div class="ph-sub">ML-powered price notifications</div></div><button class="btn btn-outline" onclick="S.alerts.forEach(a=>a.read=true);refreshSidebar();pgAlerts()">Mark all read</button></div>
+  <div class="card">
+    ${S.alerts.length===0?`<div style="text-align:center;padding:40px;color:var(--text3)">No alerts.</div>`:
+    S.alerts.map((a,i)=>{const p=pid(a.pid);return `
+      <div class="alert-row" style="opacity:${a.read?.5:1}">
+        <div class="alert-pip" style="background:${a.type==='hit'?'var(--green)':a.type==='drop'?'var(--blue)':'var(--amber)'}"></div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <span style="font-size:16px">${p?.emoji||''}</span>
+            <span style="font-size:13px;font-weight:${a.read?400:600};color:var(--ink)">${a.msg}</span>
+            ${!a.read?'<span class="badge badge-blue" style="margin-left:auto;font-size:10px">New</span>':''}
+          </div>
+          <div style="font-size:11px;color:var(--text3);margin-top:3px">${a.time} · ${a.type==='hit'?'🎯 Target hit':a.type==='drop'?'📉 Price drop':'🤖 ML prediction'}</div>
+        </div>
+        <button style="background:none;border:none;color:var(--text3);cursor:pointer;padding:4px 6px;border-radius:4px;font-size:14px" onclick="S.alerts.splice(${i},1);pgAlerts()">✕</button>
+      </div>`;}).join('')}
+  </div>`;
+}
+
+function pgOrders(){
+  const m=document.getElementById('MC');
+  m.innerHTML=`
+  <div class="ph"><div><div class="ph-title">My orders</div><div class="ph-sub">Orders placed via PricePulse</div></div></div>
+  <div class="card">
+    ${S.orders.length===0?`<div style="text-align:center;padding:56px 0;color:var(--text3)"><div style="font-size:40px;margin-bottom:14px">📦</div><div style="font-size:15px;font-weight:600;color:var(--text2);margin-bottom:6px">No orders yet</div><div style="font-size:13px;margin-bottom:20px">Set a target wallet or use Buy · UPI</div><button class="btn btn-primary" onclick="go('search')">Browse products</button></div>`:
+    S.orders.map(o=>{const p=pid(o.pid),app=UPI_APPS.find(a=>a.id===o.app);return `
+      <div style="display:flex;align-items:center;gap:14px;padding:16px 0;border-bottom:1px solid var(--border)">
+        <div style="width:44px;height:44px;background:var(--surface2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;border:1px solid var(--border)">${p?.emoji||'📦'}</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:600;color:var(--ink)">${p?.name||'—'}</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px">${cap(o.plat)} · ${o.method==='wallet'?'PP Wallet':(app?.name||'UPI')} · ${o.at}</div>
+          <div style="font-size:11px;font-family:var(--mono);color:var(--text3)">Ref: ${o.ref}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:var(--serif);font-size:17px;font-weight:700;color:var(--green)">${fmt(o.price)}</div>
+          ${o.saved>0?`<div style="font-size:11px;color:var(--green)">Saved ${fmt(o.saved)}</div>`:''}
+          <span class="badge badge-green" style="margin-top:4px">✓ Confirmed</span>
+        </div>
+      </div>`;}).join('')}
+  </div>`;
+}
+
+function pgBasket(){
+  const m=document.getElementById('MC');
+  const basket=PRODUCTS.slice(0,7);
+  const totC=basket.reduce((s,p)=>s+bp(p),0),totP=basket.reduce((s,p)=>s+p.pred,0);
+  m.innerHTML=`
+  <div class="ph"><div><div class="ph-title">Basket tracker</div><div class="ph-sub">Predict total cost and best time to buy your cart</div></div></div>
+  <div class="metrics" style="grid-template-columns:repeat(3,1fr)">
+    <div class="metric"><div class="metric-label">Current total</div><div class="metric-value">${fmt(totC)}</div><div class="metric-sub">best prices today</div></div>
+    <div class="metric"><div class="metric-label">Predicted total (7d)</div><div class="metric-value" style="color:var(--green)">${fmt(totP)}</div><div class="metric-sub">by waiting</div></div>
+    <div class="metric"><div class="metric-label">Potential saving</div><div class="metric-value" style="color:var(--accent)">${fmt(totC-totP)}</div><div class="metric-sub">if you wait ~7 days</div></div>
+  </div>
+  <div class="card" style="overflow-x:auto">
+    <table style="width:100%;border-collapse:collapse;min-width:520px">
+      <tr style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">
+        ${['Product','Now','7d pred','Save','Signal',''].map((h,i)=>`<th style="text-align:${i===0?'left':'right'};padding:0 ${i===0?0:8}px 12px;border-bottom:1.5px solid var(--border)">${h}</th>`).join('')}
+      </tr>
+      ${basket.map(p=>{const cur=bp(p),save=cur-p.pred;return `<tr>
+        <td style="padding:12px 0;border-bottom:1px solid var(--border)"><span style="font-size:16px;margin-right:8px">${p.emoji}</span><span style="font-size:13px;font-weight:600;color:var(--ink)">${p.name}</span></td>
+        <td style="text-align:right;padding:12px 8px;border-bottom:1px solid var(--border);font-family:var(--serif);font-size:14px;font-weight:700">${fmt(cur)}</td>
+        <td style="text-align:right;padding:12px 8px;border-bottom:1px solid var(--border);font-family:var(--serif);font-size:14px;font-weight:700;color:var(--green)">${fmt(p.pred)}</td>
+        <td style="text-align:right;padding:12px 8px;border-bottom:1px solid var(--border);font-family:var(--serif);font-size:14px;color:${save>0?'var(--green)':'var(--text3)'}">${fmt(save)}</td>
+        <td style="text-align:right;padding:12px 8px;border-bottom:1px solid var(--border)"><span class="badge ${p.trend==='down'?'badge-green':'badge-amber'}">${p.trend==='down'?'Wait':'Buy now'}</span></td>
+        <td style="padding:12px 0 12px 8px;border-bottom:1px solid var(--border)"><button class="btn btn-green btn-sm" onclick="openUPI(${p.id})">UPI</button></td>
+      </tr>`;}).join('')}
+      <tr>
+        <td style="padding:14px 0;font-family:var(--serif);font-weight:700;font-size:15px">Total</td>
+        <td style="text-align:right;padding:14px 8px;font-family:var(--serif);font-size:16px;font-weight:800">${fmt(totC)}</td>
+        <td style="text-align:right;padding:14px 8px;font-family:var(--serif);font-size:16px;font-weight:800;color:var(--green)">${fmt(totP)}</td>
+        <td style="text-align:right;padding:14px 8px;font-family:var(--serif);font-size:16px;font-weight:800;color:var(--green)">${fmt(totC-totP)}</td>
+        <td colspan="2"></td>
+      </tr>
+    </table>
+  </div>
+  <div class="insight-box" style="margin-top:0"><div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:3px">💡 Basket insight</div><div style="font-size:13px;color:var(--text2)">Wait 5–7 days to save <strong style="color:var(--green)">${fmt(totC-totP)}</strong> on the full basket. <strong>Amul Butter & Parle-G</strong> are stable — buy now.</div></div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+// WALLET TOPUP
+// ═══════════════════════════════════════════════════════
+function setTopup(amount,el){
+  document.querySelectorAll('.topup-btn').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');
+  const cw=document.getElementById('custom-amt-wrap');
+  if(amount===0){cw.style.display='block';S.pendingTopup=0;}
+  else{cw.style.display='none';S.pendingTopup=amount;}
+  document.getElementById('bal-before').textContent=fmt(S.walletBalance);
+  document.getElementById('bal-after').textContent=fmt(S.walletBalance+(S.pendingTopup||0));
+}
+
+function doTopup(){
+  const custom=parseInt(document.getElementById('custom-amt')?.value)||0;
+  const amount=S.pendingTopup||custom;
+  if(!amount||amount<1){showToast('Please select or enter an amount');return;}
+  S.walletBalance+=amount;refreshSidebar();closeModal('topup-modal');
+  showToast(`${fmt(amount)} added! Wallet: ${fmt(S.walletBalance)}`);
+  if(S.curPage==='targets')pgTargets();
+}
+
+// ═══════════════════════════════════════════════════════
+// TARGET MODAL
+// ═══════════════════════════════════════════════════════
+function openTargetFor(prodId){
+  const sel=document.getElementById('tm-p');
+  sel.innerHTML=PRODUCTS.map(p=>`<option value="${p.id}">${p.emoji} ${p.name} — ${fmt(bp(p))}</option>`).join('');
+  if(prodId){sel.value=prodId;const p=pid(prodId);if(p){const ti=document.getElementById('tm-t');if(ti)ti.value=p.pred;}}
+  sel.onchange=updateBalChk;
+  document.getElementById('tm-t').oninput=updateBalChk;
+  document.getElementById('tm-a').onchange=updateBalChk;
+  updateBalChk();openModal('target-modal');
+}
+
+function updateBalChk(){
+  const action=document.getElementById('tm-a')?.value;
+  const price=parseFloat(document.getElementById('tm-t')?.value)||0;
+  const box=document.getElementById('tm-bal-chk');if(!box)return;
+  if(action==='wallet'){
+    box.innerHTML=S.walletBalance>=price
+      ?`<div class="balance-ok">✅ Wallet ready — ${fmt(S.walletBalance)} available for auto-buy of ${fmt(price)}</div>`
+      :`<div class="balance-low">⚠️ Insufficient balance (${fmt(S.walletBalance)}). <span style="text-decoration:underline;cursor:pointer" onclick="closeModal('target-modal');openModal('topup-modal')">Add funds →</span></div>`;
+  } else {box.innerHTML='';}
+}
+
+function saveTarget(){
+  const pid2=parseInt(document.getElementById('tm-p').value),target=parseFloat(document.getElementById('tm-t').value),plat=document.getElementById('tm-pl').value,action=document.getElementById('tm-a').value;
+  if(!target||target<=0){showToast('Enter a valid target price');return;}
+  S.targets.push({id:S.nextId++,pid:pid2,target,plat,action,date:new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short'})});
+  closeModal('target-modal');
+  if(S.curPage==='targets')pgTargets();else go('targets');
+}
+
+// ═══════════════════════════════════════════════════════
+// UPI FLOW — real SVG logos
+// ═══════════════════════════════════════════════════════
+function openUPI(prodId,platOverride=null){
+  const p=pid(prodId);if(!p)return;
+  const plat=platOverride||Object.entries(p.prices).sort((a,b)=>a[1]-b[1])[0][0];
+  S.upi={pid:prodId,plat,price:p.prices[plat],app:null};
+  upiStep1(p,plat);openModal('upi-modal');
+}
+
+function upiStep1(p,plat){
+  document.getElementById('upi-inner').innerHTML=`
+  <div class="steps">
+    <div class="step active"><div class="sdot">1</div><span>Choose app</span></div>
+    <div class="sline"></div><div class="step"><div class="sdot">2</div><span>Confirm</span></div>
+    <div class="sline"></div><div class="step"><div class="sdot">3</div><span>Done</span></div>
+  </div>
+  <div class="modal-title">Buy via UPI</div>
+  <div class="modal-sub">${p.emoji} ${p.name} · <strong style="color:var(--green)">${fmt(S.upi.price)}</strong> on ${cap(plat)}</div>
+  <div class="upi-grid">
+    ${UPI_APPS.map(a=>`
+      <div class="upi-app" id="ua-${a.id}" onclick="selUPIApp('${a.id}')">
+        <div class="upi-logo">${a.svg}</div>
+        <div class="upi-name">${a.name}</div>
+      </div>`).join('')}
+  </div>
+  <div class="fgroup"><label class="flabel">Or enter UPI ID manually</label><input class="finput" id="uid-in" placeholder="yourname@upi" oninput="S.upi.upiId=this.value"/></div>
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px">
+    <button class="btn btn-outline" onclick="closeModal('upi-modal')">Cancel</button>
+    <button class="btn btn-primary" onclick="upiConfirm()">Next →</button>
+  </div>`;
+}
+
+function selUPIApp(id){
+  S.upi.app=id;
+  document.querySelectorAll('.upi-app').forEach(e=>e.classList.remove('sel'));
+  document.getElementById('ua-'+id)?.classList.add('sel');
+}
+
+function upiConfirm(){
+  const manual=document.getElementById('uid-in')?.value;
+  if(manual)S.upi.upiId=manual;
+  if(!S.upi.app&&!S.upi.upiId){showToast('Select a UPI app or enter your UPI ID');return;}
+  const p=pid(S.upi.pid),app=UPI_APPS.find(a=>a.id===S.upi.app),merchant=MERCHANTS[S.upi.plat]||'merchant@upi';
+  document.getElementById('upi-inner').innerHTML=`
+  <div class="steps">
+    <div class="step done"><div class="sdot">✓</div><span>Choose app</span></div>
+    <div class="sline"></div><div class="step active"><div class="sdot">2</div><span>Confirm</span></div>
+    <div class="sline"></div><div class="step"><div class="sdot">3</div><span>Done</span></div>
+  </div>
+  <div class="modal-title">Confirm payment</div>
+  <div class="pay-sum">
+    <div class="pay-row"><span style="color:var(--text2)">Product</span><span style="font-weight:600">${p.emoji} ${p.name}</span></div>
+    <div class="pay-row"><span style="color:var(--text2)">Platform</span><span>${cap(S.upi.plat)}</span></div>
+    <div class="pay-row"><span style="color:var(--text2)">Merchant UPI</span><span style="font-family:var(--mono);font-size:12px">${merchant}</span></div>
+    <div class="pay-row" style="border-top:1.5px solid var(--border);border-bottom:none;padding-top:14px">
+      <span style="font-size:15px;font-weight:600">Total</span>
+      <span style="font-family:var(--serif);font-size:26px;font-weight:800;color:var(--green)">${fmt(S.upi.price)}</span>
+    </div>
+  </div>
+  <div style="font-size:12px;color:var(--text3);margin-bottom:16px;line-height:1.6">Tapping below opens ${app?app.name:'your UPI app'} with all payment details pre-filled.</div>
+  <button onclick="fireUPI()" style="width:100%;padding:15px;border-radius:var(--r3);background:${app?app.bg:'#2563EB'};color:white;font-size:15px;font-weight:700;cursor:pointer;border:none;font-family:var(--sans);display:flex;align-items:center;justify-content:center;gap:12px">
+    <div style="width:28px;height:28px;border-radius:6px;overflow:hidden;flex-shrink:0">${app?.svg||''}</div>
+    Open ${app?app.name:'UPI App'} · Pay ${fmt(S.upi.price)}
+  </button>
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+    <button class="btn btn-outline btn-sm" onclick="upiStep1(pid(S.upi.pid),S.upi.plat)">← Back</button>
+    <button class="btn btn-outline btn-sm" onclick="closeModal('upi-modal')">Cancel</button>
+  </div>`;
+}
+
+function fireUPI(){
+  const p=pid(S.upi.pid),app=UPI_APPS.find(a=>a.id===S.upi.app);
+  const merchant=MERCHANTS[S.upi.plat]||'merchant@upi',ref='PP'+Date.now();
+  const pa=encodeURIComponent(merchant),am=S.upi.price.toFixed(2),tn=encodeURIComponent('PricePulse: '+p.name);
+  const upiBase=`upi://pay?pa=${pa}&pn=${encodeURIComponent(cap(S.upi.plat))}&am=${am}&cu=INR&tn=${tn}&tr=${ref}`;
+  const links={gpay:`gpay://upi/pay?pa=${pa}&pn=${encodeURIComponent(cap(S.upi.plat))}&am=${am}&cu=INR&tn=${tn}`,phonepe:`phonepe://pay?pa=${pa}&pn=${encodeURIComponent(cap(S.upi.plat))}&am=${am}&cu=INR&tn=${tn}`,paytm:`paytmmp://pay?pa=${pa}&pn=${encodeURIComponent(cap(S.upi.plat))}&am=${am}&cu=INR&tn=${tn}`,bhim:upiBase};
+  const link=S.upi.app?links[S.upi.app]:upiBase;
+  const iframe=document.createElement('iframe');iframe.style.cssText='position:fixed;top:-9999px;opacity:0;';iframe.src=link;document.body.appendChild(iframe);setTimeout(()=>{try{document.body.removeChild(iframe);}catch(e){}},3000);
+  try{window.location.href=link;}catch(e){}
+  document.getElementById('upi-inner').innerHTML=`<div style="text-align:center;padding:24px 0"><div class="spinner" style="margin-bottom:20px"></div><div style="font-size:15px;font-weight:600;color:var(--ink);margin-bottom:8px">Opening ${app?app.name:'UPI app'}…</div><div style="font-size:13px;color:var(--text2)">Complete the ${fmt(S.upi.price)} payment in the app.</div></div>`;
+  setTimeout(()=>upiDone(ref,p,app),3000);
+}
+
+function upiDone(ref,p,app){
+  const saved=bp(p)-S.upi.price;
+  S.orders.push({id:S.nextId++,pid:p.id,plat:S.upi.plat,price:S.upi.price,method:'upi',app:S.upi.app,ref,at:new Date().toLocaleString('en-IN'),saved:Math.max(0,saved)});
+  S.alerts.unshift({id:Date.now(),type:'hit',pid:p.id,msg:`✅ Ordered ${p.emoji} ${p.name} for ${fmt(S.upi.price)} via ${app?.name||'UPI'}`,time:'just now',read:false});
+  refreshSidebar();
+  document.getElementById('upi-inner').innerHTML=`
+  <div class="steps">
+    <div class="step done"><div class="sdot">✓</div><span>Choose</span></div><div class="sline"></div>
+    <div class="step done"><div class="sdot">✓</div><span>Confirm</span></div><div class="sline"></div>
+    <div class="step done"><div class="sdot">✓</div><span>Done</span></div>
+  </div>
+  <div class="success-wrap">
+    <div class="success-circle">✅</div>
+    <div style="font-family:var(--serif);font-size:20px;font-weight:800;color:var(--ink);margin-bottom:8px">Order placed!</div>
+    <div style="font-size:13px;color:var(--text2);line-height:1.8">${p.emoji} <strong>${p.name}</strong><br/>Paid <strong style="color:var(--green)">${fmt(S.upi.price)}</strong> via ${app?app.name:'UPI'} on ${cap(S.upi.plat)}</div>
+    <div class="order-ref">Ref: ${ref}</div>
+    <div style="display:flex;gap:8px;justify-content:center;margin-top:20px">
+      <button class="btn btn-outline" onclick="closeModal('upi-modal')">Close</button>
+      <button class="btn btn-primary" onclick="closeModal('upi-modal');go('orders')">View orders →</button>
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════
+function openModal(id){
+  if(id==='topup-modal'){S.pendingTopup=0;document.querySelectorAll('.topup-btn').forEach(b=>b.classList.remove('sel'));document.getElementById('custom-amt-wrap').style.display='none';document.getElementById('bal-before').textContent=fmt(S.walletBalance);document.getElementById('bal-after').textContent=fmt(S.walletBalance);}
+  document.getElementById(id)?.classList.add('open');
+}
+function closeModal(id){document.getElementById(id)?.classList.remove('open');}
+['topup-modal','target-modal','upi-modal'].forEach(id=>{document.getElementById(id)?.addEventListener('click',e=>{if(e.target===document.getElementById(id))closeModal(id);});});
+
+function showToast(msg){
+  const t=document.createElement('div');
+  t.style.cssText='position:fixed;bottom:24px;right:24px;background:var(--ink);color:white;padding:12px 18px;border-radius:10px;font-size:13px;font-weight:600;z-index:999;box-shadow:0 8px 24px rgba(0,0,0,.15);animation:fadeUp .2s ease;max-width:340px;line-height:1.5;font-family:var(--sans)';
+  t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),3500);
+}
+</script>
+</body>
+</html>
